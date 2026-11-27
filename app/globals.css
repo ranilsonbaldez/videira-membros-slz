@@ -1,8 +1,18 @@
 @import "tailwindcss";
 
+@import "tailwindcss";
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --videira-teal: #36b5a8;
+  --videira-blue: #3b5b9e;
+  --videira-purple: #5b2c83;
+  --videira-purple-dark: #461f66;
+  --videira-navy: #1b263b;
+  --videira-bg: #f4f6f9;
+}
+
+.bg-videira-gradiente {
+  background: linear-gradient(135deg, #36b5a8 0%, #3b5b9e 52%, #5b2c83 100%);
 }
 
 @theme inline {
