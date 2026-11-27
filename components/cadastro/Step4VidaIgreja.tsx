@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { CadastroFormData, CelulaVideira, OpcaoCelula } from "@/types/videira";
 
 interface Props {
@@ -14,7 +13,6 @@ export default function Step4VidaIgreja({
   updateFields,
   celulas,
 }: Props) {
-  const [mostrarTermos, setMostrarTermos] = useState(false);
   const isKids = formData.rede === "kids";
 
   const celulasFiltradas = celulas.filter((c) =>
@@ -204,41 +202,6 @@ export default function Step4VidaIgreja({
             placeholder="Digite o nome da célula ou do líder"
             className="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm text-[#1B263B] focus:outline-none focus:border-[#5B2C83]"
           />
-        )}
-      </div>
-
-      <div className="p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-2">
-        <div className="flex items-start gap-2.5">
-          <input
-            id="aceite_lgpd"
-            type="checkbox"
-            checked={formData.aceite_termos}
-            onChange={(e) => updateFields({ aceite_termos: e.target.checked })}
-            className="mt-1 rounded border-slate-300 text-[#5B2C83]"
-          />
-          <label
-            htmlFor="aceite_lgpd"
-            className="text-xs sm:text-sm text-slate-700"
-          >
-            Declaro que li e concordo com o tratamento dos dados informados para
-            fins de acompanhamento pastoral, organização de células e atividades
-            da Igreja Videira São Luís (LGPD).{" "}
-            <button
-              type="button"
-              onClick={() => setMostrarTermos((prev) => !prev)}
-              className="text-[#3B5B9E] underline font-medium"
-            >
-              {mostrarTermos ? "Ocultar detalhes" : "Ver detalhes"}
-            </button>
-          </label>
-        </div>
-
-        {mostrarTermos && (
-          <p className="text-xs text-slate-600 pl-6 pt-1">
-            Os dados cadastrais são utilizados exclusivamente pela liderança
-            autorizada para pastoral, comunicação de células e eventos
-            ministeriais, em conformidade com a Lei nº 13.709/2018 (LGPD).
-          </p>
         )}
       </div>
     </div>

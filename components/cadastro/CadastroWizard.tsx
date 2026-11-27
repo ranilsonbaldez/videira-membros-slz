@@ -12,6 +12,7 @@ import Step1DadosPessoais from "./Step1DadosPessoais";
 import Step2Endereco from "./Step2Endereco";
 import Step3Familia from "./Step3Familia";
 import Step4VidaIgreja from "./Step4VidaIgreja";
+import ConfirmacaoCadastro from "./ConfirmacaoCadastro";
 import TelaSucesso from "./TelaSucesso";
 
 const INITIAL_DATA: CadastroFormData = {
@@ -65,6 +66,7 @@ const ETAPAS = [
 
 export default function CadastroWizard() {
   const [etapaAtual, setEtapaAtual] = useState<number>(1);
+  const [emConfirmacao, setEmConfirmacao] = useState<boolean>(false);
   const [formData, setFormData] = useState<CadastroFormData>(INITIAL_DATA);
   const [celulas, setCelulas] = useState<CelulaVideira[]>([]);
   const [erro, setErro] = useState<string | null>(null);
@@ -123,8 +125,9 @@ export default function CadastroWizard() {
       if (onlyDigits(formData.cep).length !== 8) {
         return "Informe um CEP válido com 8 dígitos.";
       }
-      if (!formData.logradouro.trim())
+      if (!formData.logradouro.trim()) {
         return "Informe o logradouro (rua/avenida).";
+      }
       if (!formData.numero.trim()) return "Informe o número do endereço.";
       if (!formData.bairro.trim()) return "Informe o bairro.";
       if (!formData.cidade.trim() || !formData.uf.trim()) {
@@ -179,9 +182,6 @@ export default function CadastroWizard() {
       ) {
         return "Digite o nome da sua célula ou do líder.";
       }
-      if (!formData.aceite_termos) {
-        return "É necessário ler e aceitar os termos da LGPD para concluir.";
-      }
     }
 
     return null;
@@ -203,11 +203,33 @@ export default function CadastroWizard() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  function handleIrParaConfirmacao() {
     const msgErro = validarEtapa(4);
-    if (msgErro || !formData.rede || !formData.sexo) {
-      setErro(msgErro || "Revise os campos obrigatórios.");
+    if (msgErro) {
+      setErro(msgErro);
+      return;
+    }
+    setErro(null);
+    setEmConfirmacao(true);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function handleVoltarDaConfirmacao() {
+    setErro(null);
+    setEmConfirmacao(false);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  async function executarCadastro() {
+    if (!formData.aceite_termos) {
+      setErro(
+        "É necessário ler e aceitar os termos da LGPD para concluir o cadastro.",
+      );
+      return;
+    }
+
+    if (!formData.rede || !formData.sexo) {
+      setErro("Revise os dados obrigatórios antes de concluir.");
       return;
     }
 
@@ -297,9 +319,19 @@ export default function CadastroWizard() {
     setCodigoGerado(data.codigo_membro);
   }
 
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (emConfirmacao) {
+      executarCadastro();
+    } else if (etapaAtual === 4) {
+      handleIrParaConfirmacao();
+    }
+  }
+
   function handleNovoCadastro() {
     setFormData(INITIAL_DATA);
     setCodigoGerado(null);
+    setEmConfirmacao(false);
     setEtapaAtual(1);
     setErro(null);
   }
@@ -315,20 +347,26 @@ export default function CadastroWizard() {
     );
   }
 
+  const percentualBarra = emConfirmacao
+    ? 100
+    : Math.round((etapaAtual / 4) * 100);
+
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+    <div className="bg-white rounded-2xl shadow-2xl border border-white/15 overflow-hidden">
       {/* Barra de Progresso */}
-      <div className="bg-slate-900 text-white px-6 py-4">
+      <div className="bg-[#1B263B] text-white px-6 py-4">
         <div className="flex items-center justify-between text-xs font-medium mb-2">
           <span>
-            Etapa {etapaAtual} de 4 — {ETAPAS[etapaAtual - 1].titulo}
+            {emConfirmacao
+              ? "Confirmação Final — Revisão dos Dados e LGPD"
+              : `Etapa ${etapaAtual} de 4 — ${ETAPAS[etapaAtual - 1].titulo}`}
           </span>
-          <span>{Math.round((etapaAtual / 4) * 100)}%</span>
+          <span>{percentualBarra}%</span>
         </div>
         <div className="w-full bg-slate-700 h-2 rounded-full overflow-hidden">
           <div
-            className="bg-purple-500 h-full transition-all duration-300"
-            style={{ width: `${(etapaAtual / 4) * 100}%` }}
+            className="bg-videira-gradiente h-full transition-all duration-300"
+            style={{ width: `${percentualBarra}%` }}
           />
         </div>
       </div>
@@ -340,58 +378,74 @@ export default function CadastroWizard() {
           </div>
         )}
 
-        {etapaAtual === 1 && (
-          <Step1DadosPessoais formData={formData} updateFields={updateFields} />
-        )}
-
-        {etapaAtual === 2 && (
-          <Step2Endereco formData={formData} updateFields={updateFields} />
-        )}
-
-        {etapaAtual === 3 && (
-          <Step3Familia formData={formData} updateFields={updateFields} />
-        )}
-
-        {etapaAtual === 4 && (
-          <Step4VidaIgreja
+        {emConfirmacao ? (
+          <ConfirmacaoCadastro
             formData={formData}
-            updateFields={updateFields}
             celulas={celulas}
+            enviando={enviando}
+            onVoltar={handleVoltarDaConfirmacao}
+            onToggleTermos={(aceito) => updateFields({ aceite_termos: aceito })}
+            onConfirmarEnvio={executarCadastro}
           />
+        ) : (
+          <>
+            {etapaAtual === 1 && (
+              <Step1DadosPessoais
+                formData={formData}
+                updateFields={updateFields}
+              />
+            )}
+
+            {etapaAtual === 2 && (
+              <Step2Endereco formData={formData} updateFields={updateFields} />
+            )}
+
+            {etapaAtual === 3 && (
+              <Step3Familia formData={formData} updateFields={updateFields} />
+            )}
+
+            {etapaAtual === 4 && (
+              <Step4VidaIgreja
+                formData={formData}
+                updateFields={updateFields}
+                celulas={celulas}
+              />
+            )}
+
+            {/* Botões de Navegação */}
+            <div className="pt-4 border-t border-slate-100 flex items-center justify-between gap-4">
+              {etapaAtual > 1 ? (
+                <button
+                  type="button"
+                  onClick={handleVoltar}
+                  className="px-5 py-2.5 rounded-xl border border-slate-300 text-slate-700 font-medium hover:bg-slate-50 transition-colors cursor-pointer"
+                >
+                  Voltar
+                </button>
+              ) : (
+                <div />
+              )}
+
+              {etapaAtual < 4 ? (
+                <button
+                  type="button"
+                  onClick={handleProximo}
+                  className="px-6 py-2.5 rounded-xl bg-[#5B2C83] hover:bg-[#461F66] text-white font-semibold transition-colors cursor-pointer"
+                >
+                  Próxima Etapa
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleIrParaConfirmacao}
+                  className="px-6 py-2.5 rounded-xl bg-[#5B2C83] hover:bg-[#461F66] text-white font-semibold transition-colors cursor-pointer"
+                >
+                  Finalizar
+                </button>
+              )}
+            </div>
+          </>
         )}
-
-        {/* Botões de Navegação */}
-        <div className="pt-4 border-t border-slate-100 flex items-center justify-between gap-4">
-          {etapaAtual > 1 ? (
-            <button
-              type="button"
-              onClick={handleVoltar}
-              className="px-5 py-2.5 rounded-xl border border-slate-300 text-slate-700 font-medium hover:bg-slate-50 transition-colors"
-            >
-              Voltar
-            </button>
-          ) : (
-            <div />
-          )}
-
-          {etapaAtual < 4 ? (
-            <button
-              type="button"
-              onClick={handleProximo}
-              className="px-6 py-2.5 rounded-xl bg-purple-700 hover:bg-purple-800 text-white font-semibold transition-colors"
-            >
-              Próxima Etapa
-            </button>
-          ) : (
-            <button
-              type="submit"
-              disabled={enviando}
-              className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white font-semibold transition-colors"
-            >
-              {enviando ? "Salvando..." : "Concluir Cadastro"}
-            </button>
-          )}
-        </div>
       </form>
     </div>
   );
