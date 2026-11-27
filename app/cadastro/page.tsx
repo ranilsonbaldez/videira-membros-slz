@@ -1,16 +1,15 @@
+"use client";
+
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import CadastroWizard from "@/components/cadastro/CadastroWizard";
 
-export const metadata = {
-  title: "Cadastro de Membros | Videira São Luís",
-  description:
-    "Formulário unificado de cadastro de membros — Kids, Jovens e Adultos.",
-};
-
 export default function CadastroPage() {
+  const [cadastroConcluido, setCadastroConcluido] = useState(false);
+
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-[#3B5B9E] via-[#5B2C83] to-[#2F144A]">
+    <div className="min-h-screen flex flex-col bg-linear-to-br from-[#3B5B9E] via-[#5B2C83] to-[#2F144A]">
       {/* Faixa superior nas cores da Videira */}
       <div className="h-1.5 w-full bg-videira-gradiente" />
 
@@ -34,15 +33,15 @@ export default function CadastroPage() {
             <span className="inline-block px-3 py-1 text-xs font-semibold uppercase tracking-wider rounded-full bg-white/15 text-white border border-white/25 mb-2">
               Cadastro de Membros
             </span>
-            {/* <h1 className="text-2xl sm:text-3xl font-bold text-white">
-              Cadastro de Membros
-            </h1> */}
-            <p className="text-sm text-white/85 mt-1">
-              Preencha as 4 etapas abaixo para concluir seu registro.
-            </p>
+
+            {!cadastroConcluido && (
+              <p className="text-sm text-white/85 mt-1">
+                Preencha as 4 etapas abaixo para concluir seu registro.
+              </p>
+            )}
           </header>
 
-          <CadastroWizard />
+          <CadastroWizard onConcluidoChange={setCadastroConcluido} />
         </div>
       </main>
 

@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-[#3B5B9E] via-[#5B2C83] to-[#2F144A]">
+    <div className="min-h-screen flex flex-col bg-linear-to-br from-[#3B5B9E] via-[#5B2C83] to-[#2F144A]">
       {/* Faixa superior nas cores da Videira */}
       <div className="h-1.5 w-full bg-videira-gradiente" />
 

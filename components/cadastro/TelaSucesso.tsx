@@ -1,14 +1,12 @@
 "use client";
 
 interface Props {
-  codigoMembro: string;
   nomeCompleto: string;
   rede: string;
   onNovoCadastro: () => void;
 }
 
 export default function TelaSucesso({
-  codigoMembro,
   nomeCompleto,
   rede,
   onNovoCadastro,
@@ -32,19 +30,10 @@ export default function TelaSucesso({
         </p>
       </div>
 
-      <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
-        <div className="text-xs uppercase tracking-wider text-slate-500 font-semibold">
-          Seu código de identificação
-        </div>
-        <div className="text-2xl font-extrabold text-[#5B2C83] mt-1 tracking-wide">
-          {codigoMembro}
-        </div>
-      </div>
-
       <button
         type="button"
         onClick={onNovoCadastro}
-        className="w-full py-3 px-4 rounded-xl bg-[#5B2C83] hover:bg-[#461F66] text-white font-semibold transition-colors"
+        className="w-full py-3 px-4 rounded-xl bg-[#5B2C83] hover:bg-[#461F66] text-white font-semibold transition-colors cursor-pointer"
       >
         Realizar Novo Cadastro
       </button>

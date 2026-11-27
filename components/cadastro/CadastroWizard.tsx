@@ -64,7 +64,13 @@ const ETAPAS = [
   { numero: 4, titulo: "Vida na Igreja" },
 ];
 
-export default function CadastroWizard() {
+interface CadastroWizardProps {
+  onConcluidoChange?: (concluido: boolean) => void;
+}
+
+export default function CadastroWizard({
+  onConcluidoChange,
+}: CadastroWizardProps) {
   const [etapaAtual, setEtapaAtual] = useState<number>(1);
   const [emConfirmacao, setEmConfirmacao] = useState<boolean>(false);
   const [formData, setFormData] = useState<CadastroFormData>(INITIAL_DATA);
@@ -72,6 +78,10 @@ export default function CadastroWizard() {
   const [erro, setErro] = useState<string | null>(null);
   const [enviando, setEnviando] = useState<boolean>(false);
   const [codigoGerado, setCodigoGerado] = useState<string | null>(null);
+
+  useEffect(() => {
+    onConcluidoChange?.(Boolean(codigoGerado) || emConfirmacao);
+  }, [codigoGerado, emConfirmacao, onConcluidoChange]);
 
   useEffect(() => {
     async function carregarCelulas() {
@@ -221,6 +231,8 @@ export default function CadastroWizard() {
   }
 
   async function executarCadastro() {
+    if (enviando) return;
+
     if (!formData.aceite_termos) {
       setErro(
         "É necessário ler e aceitar os termos da LGPD para concluir o cadastro.",
@@ -243,7 +255,7 @@ export default function CadastroWizard() {
       nome_completo: formData.nome_completo.trim(),
       data_nascimento: formData.data_nascimento,
       sexo: formData.sexo,
-      celular: isKids ? null : onlyDigits(formData.celular),
+      celular: isKids ? null : onlyDigits(formData.celular) || null,
       ocupacao: isKids ? null : formData.ocupacao || null,
       profissao: isKids ? null : formData.profissao.trim() || null,
 
@@ -295,28 +307,30 @@ export default function CadastroWizard() {
       aceite_termos: true,
     };
 
-    const { data, error } = await supabase
-      .from("videira_membros")
-      .insert(payload)
-      .select("codigo_membro")
-      .single();
+    try {
+      const { error } = await supabase.from("videira_membros").insert(payload);
 
-    setEnviando(false);
-
-    if (error) {
-      if (error.code === "23505") {
-        setErro(
-          isKids
-            ? "Já existe um cadastro Kids com este nome, data de nascimento e telefone do responsável."
-            : "Este número de celular já está cadastrado na base de membros.",
-        );
-      } else {
-        setErro(`Erro ao salvar cadastro: ${error.message}`);
+      if (error) {
+        setEnviando(false);
+        if (error.code === "23505") {
+          setErro(
+            isKids
+              ? "Já existe um cadastro Kids com este nome, data de nascimento e telefone do responsável."
+              : "Este número de celular já está cadastrado na base de membros.",
+          );
+        } else {
+          setErro(`Erro ao salvar cadastro: ${error.message}`);
+        }
+        return;
       }
-      return;
-    }
 
-    setCodigoGerado(data.codigo_membro);
+      setEnviando(false);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      setCodigoGerado("CONCLUIDO");
+    } catch {
+      setEnviando(false);
+      setErro("Falha de conexão ao enviar o cadastro. Tente novamente.");
+    }
   }
 
   function handleSubmit(e: React.FormEvent) {
@@ -332,6 +346,7 @@ export default function CadastroWizard() {
     setFormData(INITIAL_DATA);
     setCodigoGerado(null);
     setEmConfirmacao(false);
+    setEnviando(false);
     setEtapaAtual(1);
     setErro(null);
   }
@@ -339,7 +354,6 @@ export default function CadastroWizard() {
   if (codigoGerado) {
     return (
       <TelaSucesso
-        codigoMembro={codigoGerado}
         nomeCompleto={formData.nome_completo}
         rede={formData.rede || "adultos"}
         onNovoCadastro={handleNovoCadastro}
