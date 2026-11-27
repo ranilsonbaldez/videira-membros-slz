@@ -37,9 +37,7 @@ function rotuloEstadoCivil(estado: CadastroFormData["estado_civil"]): string {
 function rotuloOcupacao(ocupacao: CadastroFormData["ocupacao"]): string {
   switch (ocupacao) {
     case "estudante":
-      return "Estudante";
-    case "universitario":
-      return "Universitário(a)";
+      return "Estudante/Universitário(a)";
     case "trabalhando":
       return "Trabalhando";
     case "outro":
@@ -145,7 +143,7 @@ export default function ConfirmacaoCadastro({
 
       {/* Endereço */}
       <div className="rounded-xl border border-slate-200 p-4 space-y-2 text-sm">
-        <div className="text-xs font-bold uppercase tracking-wider text-[#3B5B9E]">
+        <div className="text-xs font-bold uppercase tracking-wider text-[#5B2C83]">
           2. Endereço
         </div>
         <div className="text-[#1B263B] space-y-1">
@@ -165,7 +163,7 @@ export default function ConfirmacaoCadastro({
 
       {/* Família */}
       <div className="rounded-xl border border-slate-200 p-4 space-y-2 text-sm">
-        <div className="text-xs font-bold uppercase tracking-wider text-[#36B5A8]">
+        <div className="text-xs font-bold uppercase tracking-wider text-[#5B2C83]">
           3. Família
         </div>
         {isKids ? (
@@ -271,28 +269,10 @@ export default function ConfirmacaoCadastro({
             htmlFor="aceite_lgpd_confirmacao"
             className="text-xs sm:text-sm text-slate-700"
           >
-            Declaro que conferi os dados acima e concordo com o tratamento das
-            informações para fins de acompanhamento pastoral, organização de
-            células e atividades da Igreja Videira São Luís (LGPD).{" "}
-            <button
-              type="button"
-              onClick={() => setMostrarTermos((prev) => !prev)}
-              className="text-[#3B5B9E] underline font-medium"
-            >
-              {mostrarTermos ? "Ocultar termos" : "Ler termos da LGPD"}
-            </button>
+            Concordo com o uso destes dados exclusivamente para fins pastorais e
+            administrativos da Igreja Videira São Luis.{" "}
           </label>
         </div>
-
-        {mostrarTermos && (
-          <p className="text-xs text-slate-600 pl-6 pt-1 leading-relaxed">
-            Em conformidade com a Lei nº 13.709/2018 (LGPD), os dados fornecidos
-            serão utilizados exclusivamente pela liderança autorizada da Igreja
-            Videira São Luís para cuidado pastoral, integração em células,
-            comunicação e gestão de atividades ministeriais, sem comercialização
-            ou compartilhamento indevido com terceiros.
-          </p>
-        )}
       </div>
 
       {/* Ações de Confirmação */}

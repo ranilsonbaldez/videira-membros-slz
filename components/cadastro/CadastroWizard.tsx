@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import { onlyDigits } from "@/lib/masks";
+import { onlyDigits, dataBRParaISO } from "@/lib/masks";
 import {
   CadastroFormData,
   CelulaVideira,
@@ -112,6 +112,9 @@ export default function CadastroWizard({
       if (!formData.data_nascimento) {
         return "Informe a data de nascimento.";
       }
+      if (!dataBRParaISO(formData.data_nascimento)) {
+        return "Informe uma data de nascimento válida (dd/mm/aaaa).";
+      }
       if (!formData.sexo) return "Selecione o sexo.";
 
       if (formData.rede !== "kids") {
@@ -120,13 +123,6 @@ export default function CadastroWizard({
         }
         if (!formData.ocupacao) {
           return "Selecione sua ocupação atual.";
-        }
-        if (
-          (formData.ocupacao === "trabalhando" ||
-            formData.ocupacao === "outro") &&
-          !formData.profissao.trim()
-        ) {
-          return "Informe sua profissão ou atividade.";
         }
       }
     }
@@ -250,10 +246,17 @@ export default function CadastroWizard({
 
     const isKids = formData.rede === "kids";
 
+    const dataNascimentoISO = dataBRParaISO(formData.data_nascimento);
+    if (!dataNascimentoISO) {
+      setEnviando(false);
+      setErro("Data de nascimento inválida.");
+      return;
+    }
+
     const payload: NovoMembroPayload = {
       rede: formData.rede,
-      nome_completo: formData.nome_completo.trim(),
-      data_nascimento: formData.data_nascimento,
+      nome_completo: formData.nome_completo.trim().toUpperCase(),
+      data_nascimento: dataNascimentoISO,
       sexo: formData.sexo,
       celular: isKids ? null : onlyDigits(formData.celular) || null,
       ocupacao: isKids ? null : formData.ocupacao || null,
@@ -372,15 +375,15 @@ export default function CadastroWizard({
         <div className="flex items-center justify-between text-xs font-medium mb-2">
           <span>
             {emConfirmacao
-              ? "Confirmação Final — Revisão dos Dados e LGPD"
+              ? "Confirmação Final"
               : `Etapa ${etapaAtual} de 4 — ${ETAPAS[etapaAtual - 1].titulo}`}
           </span>
           <span>{percentualBarra}%</span>
         </div>
         <div className="w-full bg-slate-700 h-2 rounded-full overflow-hidden">
           <div
-            className="bg-videira-gradiente h-full transition-all duration-300"
-            style={{ width: `${percentualBarra}%` }}
+            className="bg-white h-full transition-all duration-300"
+            style={{ width: `${percentualBarra}%`, backgroundColor: "#ffffff" }}
           />
         </div>
       </div>

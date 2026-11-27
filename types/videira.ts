@@ -1,6 +1,6 @@
 export type RedeVideira = "kids" | "jovens" | "adultos";
 export type Sexo = "masculino" | "feminino";
-export type Ocupacao = "estudante" | "universitario" | "trabalhando" | "outro";
+export type Ocupacao = "estudante" | "trabalhando" | "outro";
 export type EstadoCivil = "solteiro" | "casado" | "viuvo" | "divorciado";
 export type OpcaoCelula = "cadastrada" | "nao_participa" | "outra";
 

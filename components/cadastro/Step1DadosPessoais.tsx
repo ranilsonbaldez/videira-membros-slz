@@ -1,6 +1,6 @@
 "use client";
 
-import { maskPhone } from "@/lib/masks";
+import { maskDataBR, maskPhone } from "@/lib/masks";
 import { CadastroFormData, Ocupacao, RedeVideira, Sexo } from "@/types/videira";
 
 interface Props {
@@ -70,9 +70,11 @@ export default function Step1DadosPessoais({ formData, updateFields }: Props) {
         <input
           type="text"
           value={formData.nome_completo}
-          onChange={(e) => updateFields({ nome_completo: e.target.value })}
+          onChange={(e) =>
+            updateFields({ nome_completo: e.target.value.toUpperCase() })
+          }
           placeholder="Digite o nome completo"
-          className="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm text-[#1B263B] focus:outline-none focus:border-[#5B2C83]"
+          className="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm text-[#1B263B] focus:outline-none uppercase focus:border-[#5B2C83] "
         />
       </div>
 
@@ -82,9 +84,14 @@ export default function Step1DadosPessoais({ formData, updateFields }: Props) {
             Data de nascimento *
           </label>
           <input
-            type="date"
+            type="text"
+            inputMode="numeric"
+            maxLength={10}
+            placeholder="dd/mm/aaaa"
             value={formData.data_nascimento}
-            onChange={(e) => updateFields({ data_nascimento: e.target.value })}
+            onChange={(e) =>
+              updateFields({ data_nascimento: maskDataBR(e.target.value) })
+            }
             className="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm text-[#1B263B] focus:outline-none focus:border-[#5B2C83]"
           />
         </div>
@@ -127,33 +134,43 @@ export default function Step1DadosPessoais({ formData, updateFields }: Props) {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-[#1B263B] mb-1">
-                Ocupação *
+                Área de atuação
               </label>
               <select
                 value={formData.ocupacao}
-                onChange={(e) =>
-                  updateFields({ ocupacao: e.target.value as Ocupacao | "" })
-                }
+                onChange={(e) => {
+                  const novaOcupacao = e.target.value as Ocupacao | "";
+                  updateFields({
+                    ocupacao: novaOcupacao,
+                    profissao:
+                      novaOcupacao === "trabalhando" || novaOcupacao === "outro"
+                        ? formData.profissao
+                        : "",
+                  });
+                }}
                 className="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm text-[#1B263B] bg-white focus:outline-none focus:border-[#5B2C83]"
               >
                 <option value="">Selecione...</option>
-                <option value="estudante">Estudante</option>
-                <option value="universitario">Universitário(a)</option>
-                <option value="trabalhando">Trabalhando</option>
+                <option value="estudante">Estudante/Universitário(a)</option>
+                <option value="trabalhando">
+                  Atuação profissional / Autônomo(a)
+                </option>
                 <option value="outro">Outro</option>
               </select>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-[#1B263B] mb-1">
-                Profissão / Atividade {exigeProfissao ? "*" : "(opcional)"}
+                Profissão / Atividade (opcional)
               </label>
               <input
                 type="text"
                 value={formData.profissao}
-                onChange={(e) => updateFields({ profissao: e.target.value })}
-                placeholder="Ex: Analista, Professor, Autônomo"
-                className="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm text-[#1B263B] focus:outline-none focus:border-[#5B2C83]"
+                onChange={(e) =>
+                  updateFields({ profissao: e.target.value.toUpperCase() })
+                }
+                placeholder="Ex: Professor, Autônomo"
+                className="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm text-[#1B263B] uppercase focus:outline-none focus:border-[#5B2C83]"
               />
             </div>
           </div>
