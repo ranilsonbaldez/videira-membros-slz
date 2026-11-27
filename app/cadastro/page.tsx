@@ -32,11 +32,11 @@ export default function CadastroPage() {
             </Link>
 
             <span className="inline-block px-3 py-1 text-xs font-semibold uppercase tracking-wider rounded-full bg-white/15 text-white border border-white/25 mb-2">
-              São Luís • Ficha Cadastral
-            </span>
-            <h1 className="text-2xl sm:text-3xl font-bold text-white">
               Cadastro de Membros
-            </h1>
+            </span>
+            {/* <h1 className="text-2xl sm:text-3xl font-bold text-white">
+              Cadastro de Membros
+            </h1> */}
             <p className="text-sm text-white/85 mt-1">
               Preencha as 4 etapas abaixo para concluir seu registro.
             </p>

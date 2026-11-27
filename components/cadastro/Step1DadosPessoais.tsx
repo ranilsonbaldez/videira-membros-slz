@@ -19,39 +19,48 @@ export default function Step1DadosPessoais({ formData, updateFields }: Props) {
   const exigeProfissao =
     formData.ocupacao === "trabalhando" || formData.ocupacao === "outro";
 
+  const redeAtual = REDES.find((r) => r.valor === formData.rede);
+
+  function selecionarRede(valor: RedeVideira) {
+    updateFields({
+      rede: valor,
+      ...(valor === "kids" ? { celular: "", ocupacao: "", profissao: "" } : {}),
+    });
+  }
+
   return (
     <div className="space-y-5">
+      {/* Seletor compacto em 3 colunas (funciona no toque e ocupa 1 linha no celular) */}
       <div>
-        <label className="block text-sm font-semibold text-[#1B263B] mb-2">
-          Rede *
+        <label className="block text-sm font-semibold text-[#1B263B] mb-1.5">
+          Selecione a sua Rede *
         </label>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+
+        <div className="grid grid-cols-3 gap-2 p-1 rounded-xl bg-slate-100 border border-slate-200 relative z-10">
           {REDES.map((item) => {
             const selecionada = formData.rede === item.valor;
             return (
               <button
                 key={item.valor}
                 type="button"
-                onClick={() =>
-                  updateFields({
-                    rede: item.valor,
-                    ...(item.valor === "kids"
-                      ? { celular: "", ocupacao: "", profissao: "" }
-                      : {}),
-                  })
-                }
-                className={`p-3.5 rounded-xl border text-left transition-all ${
+                onClick={() => selecionarRede(item.valor)}
+                className={`relative z-10 pointer-events-auto touch-manipulation py-2.5 px-2 rounded-lg text-sm font-bold text-center cursor-pointer transition-colors ${
                   selecionada
-                    ? "border-[#5B2C83] bg-[#5B2C83]/10 ring-1 ring-[#5B2C83]"
-                    : "border-slate-200 hover:border-slate-300 bg-white"
+                    ? "bg-[#5B2C83] text-white shadow-sm"
+                    : "bg-transparent text-[#1B263B] hover:bg-white/70"
                 }`}
               >
-                <div className="font-bold text-[#1B263B]">{item.titulo}</div>
-                <div className="text-xs text-slate-600 mt-0.5">{item.desc}</div>
+                {item.titulo}
               </button>
             );
           })}
         </div>
+
+        <p className="text-xs text-slate-500 mt-1.5">
+          {redeAtual
+            ? redeAtual.desc
+            : "Toque acima para escolher Kids, Jovens ou Adultos."}
+        </p>
       </div>
 
       <div>
